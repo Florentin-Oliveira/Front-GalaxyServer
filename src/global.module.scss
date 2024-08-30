@@ -1,0 +1,29 @@
+// global.module.scss
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Roboto', sans-serif;
+  background: linear-gradient(135deg,  #0f091c, #0f091c,#3E1D91, #FC4590,#3E1D91 ,#241f4d, #3b74b5); // Cores inspiradas na imagem
+  background-size: 400% 400%;
+  animation: gradientAnimation 15s ease infinite;
+  color: #ffffff;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+}
+
+@keyframes gradientAnimation {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
