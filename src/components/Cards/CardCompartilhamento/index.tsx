@@ -6,6 +6,13 @@ import http from '../../../http';
 import { ICompartilhamento } from '../../../Interface/ICompatilhamento';
 import autenticaStore from '../../../store/autentica.store';
 
+import Univerce from '../../../assets/image/Univerce.png';
+import Space from '../../../assets/image/Space.png';
+import Fantasma from '../../../assets/image/Fantasma.png';
+import Dinossauro from '../../../assets/image/Dinossauro.png';
+
+const images = [Univerce, Space, Fantasma, Dinossauro];
+
 const CardCompartilhamento: React.FC = () => {
     const [compartilharList, setCompartilharList] = useState<ICompartilhamento[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -125,18 +132,20 @@ const CardCompartilhamento: React.FC = () => {
                     Nenhum item compartilhado foi encontrado!
                 </Typography>
             ) : (
-                compartilharList.map(compartilhar => (
-                    <Grid item key={compartilhar.id}  sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
+                compartilharList.map((compartilhar, index) => (
+                    <Grid item key={compartilhar.id} sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
                         <MuiCard
                             sx={{
-                                maxWidth: { xs: 250, sm: 250 },
+                                width: { xs: 250, sm: 250 }, // Aumente a largura do card
+                                maxWidth: { xs: 300, sm: 350 }, // Aumente a largura máxima do card
+                                m: 1,
                                 position: 'relative',
                                 borderRadius: '16px',
                                 display: 'flex',
                                 flexDirection: 'column',
                                 justifyContent: 'space-between',
                                 height: '100%',
-                                boxShadow: 3,
+                                margin: '0px',
                             }}
                         >
                             <Box
@@ -148,6 +157,18 @@ const CardCompartilhamento: React.FC = () => {
                                     overflow: 'hidden',
                                 }}
                             >
+                                <img
+                                    src={images[index % images.length]}
+                                    alt="Space"
+                                    width="100%"
+                                    height="100%"
+                                    style={{
+                                        position: 'absolute',
+                                        top: 0,
+                                        left: 0,
+                                        borderRadius: '16px 16px 0 0'
+                                    }}
+                                />
                                 <IconButton
                                     aria-label="more"
                                     aria-controls="long-menu"
@@ -157,7 +178,6 @@ const CardCompartilhamento: React.FC = () => {
                                 >
                                     <MoreVertIcon />
                                 </IconButton>
-                                <Skeleton variant="rectangular" width="100%" height="100%" />
                             </Box>
                             <CardContent>
                                 <Typography gutterBottom variant="h5" component="div">

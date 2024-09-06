@@ -31,11 +31,12 @@ class AutenticaStore {
     this.navigate = navigate;
   }
 
-  login({ id, username, token, expirationTime }: IUser) {
-    console.log('Login attempt:', { id, username, token, expirationTime });
+  login({ id, username, token, expirationTime, email }: IUser) {
+    console.log('Login attempt:', { id, username, token, expirationTime, email });
     this.sessionExpired = false;
-    this.setAuthData(id ?? 0, username, token, expirationTime ?? 0);
-  }
+    this.setAuthData(id ?? 0, username, token, expirationTime ?? 0, email);
+}
+
 
   logout() {
     console.log('Logging out user:', this.usuario.username);
@@ -45,19 +46,22 @@ class AutenticaStore {
     }
   }
 
-  setAuthData(id: number, username: string, token: string, expirationTime: number) {
-    console.log('Setting auth data:', { id, username, token, expirationTime });
+  setAuthData(id: number, username: string, token: string, expirationTime: number, email?: string) {
+    console.log('Setting auth data:', { id, username, token, expirationTime, email });
     this.estaAutenticado = true;
-    this.usuario = { id, username, token, expirationTime };
+    this.usuario = { id, username, token, expirationTime, email: email ?? this.usuario.email };  // Adiciona o email ao usuário
     localStorage.setItem('id', id.toString());
     localStorage.setItem('username', username);
     localStorage.setItem('token', token);
     localStorage.setItem('expirationTime', expirationTime.toString());
+    if (email) {
+        localStorage.setItem('email', email);  // Armazena o e-mail no localStorage
+    }
 
     setTimeout(() => {
       this.checkSessionExpired();
     }, expirationTime - Date.now());
-  }
+}
 
   clearAuthData() {
     console.log('Clearing auth data');
@@ -74,16 +78,17 @@ class AutenticaStore {
     const username = localStorage.getItem('username');
     const token = localStorage.getItem('token');
     const expirationTimeString = localStorage.getItem('expirationTime');
+    const email = localStorage.getItem('email') ?? undefined;  // Convertendo null para undefined
     const expirationTime = expirationTimeString ? parseInt(expirationTimeString, 10) : 0;
 
-    console.log('Initializing auth:', { id, username, token, expirationTime });
+    console.log('Initializing auth:', { id, username, token, expirationTime, email });
 
     if (token && username && expirationTime > Date.now()) {
-      this.setAuthData(id, username, token, expirationTime);
+      this.setAuthData(id, username, token, expirationTime, email);
     } else {
       this.clearAuthData();
     }
-  }
+}
 
   checkSessionExpired() {
     if (this.usuario.expirationTime <= Date.now()) {

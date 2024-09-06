@@ -5,16 +5,18 @@ import { Link as RouterLink } from 'react-router-dom';
 import http from '../../http/index';
 import MiLogoPng from '../../assets/image/MiLogoPng.png';
 import { useTheme } from '@mui/material/styles';
+import { validarSenha } from '../../Validacao/Senha';
 
 const SignUpPage: React.FC = () => {
   const [showAlert, setShowAlert] = useState(true);
   const [error, setError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const navigate = useNavigate();
-  const theme = useTheme(); // Utiliza o hook useTheme para acessar o tema
+  const theme = useTheme();
 
   useEffect(() => {
     const timer = setTimeout(() => setShowAlert(false), 7000);
@@ -23,16 +25,25 @@ const SignUpPage: React.FC = () => {
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
+    const { isValid, errorMessage } = validarSenha(password);
+
+    if (!isValid) {
+      setPasswordError(errorMessage);
+      return;
+    }
+
     if (password !== confirmPassword) {
       setError('As senhas não coincidem.');
       return;
     }
+
     try {
       const response = await http.post('sign-up/', {
         username,
         email,
         password,
       }, { withCredentials: true });
+
       if (response.status === 201) {
         setError('');
         navigate('/login/');
@@ -52,7 +63,7 @@ const SignUpPage: React.FC = () => {
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        color: theme.palette.mode === 'dark' ? '#ffffff' : '#000000', // Define a cor do texto com base no modo
+        color: theme.palette.mode === 'dark' ? '#ffffff' : '#000000',
       }}
     >
       {showAlert && (
@@ -87,13 +98,13 @@ const SignUpPage: React.FC = () => {
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          backgroundColor: theme.palette.mode === 'dark' ? '#333333' : '#ffffff', // Fundo escuro no modo escuro
+          backgroundColor: theme.palette.mode === 'dark' ? '#333333' : '#ffffff',
           padding: 3,
           borderRadius: 2,
           boxShadow: 3,
           zIndex: 1,
           marginBottom: 10,
-          color: theme.palette.mode === 'dark' ? '#ffffff' : '#000000', // Define a cor do texto com base no modo
+          color: theme.palette.mode === 'dark' ? '#ffffff' : '#000000',
         }}
       >
         <Typography component="h1" variant="h5">
@@ -111,11 +122,11 @@ const SignUpPage: React.FC = () => {
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             InputLabelProps={{
-              sx: { color: theme.palette.mode === 'dark' ? '#ffffff' : '#000000' }, // Cor da label no modo escuro
+              sx: { color: theme.palette.mode === 'dark' ? '#ffffff' : '#000000' },
             }}
             InputProps={{
               sx: {
-                color: theme.palette.mode === 'dark' ? '#ffffff' : '#000000', // Cor do texto no modo escuro
+                color: theme.palette.mode === 'dark' ? '#ffffff' : '#000000',
               }
             }}
           />
@@ -130,11 +141,11 @@ const SignUpPage: React.FC = () => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             InputLabelProps={{
-              sx: { color: theme.palette.mode === 'dark' ? '#ffffff' : '#000000' }, // Cor da label no modo escuro
+              sx: { color: theme.palette.mode === 'dark' ? '#ffffff' : '#000000' },
             }}
             InputProps={{
               sx: {
-                color: theme.palette.mode === 'dark' ? '#ffffff' : '#000000', // Cor do texto no modo escuro
+                color: theme.palette.mode === 'dark' ? '#ffffff' : '#000000',
               }
             }}
           />
@@ -149,12 +160,14 @@ const SignUpPage: React.FC = () => {
             autoComplete="new-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            error={!!passwordError}
+            helperText={passwordError}
             InputLabelProps={{
-              sx: { color: theme.palette.mode === 'dark' ? '#ffffff' : '#000000' }, // Cor da label no modo escuro
+              sx: { color: theme.palette.mode === 'dark' ? '#ffffff' : '#000000' },
             }}
             InputProps={{
               sx: {
-                color: theme.palette.mode === 'dark' ? '#ffffff' : '#000000', // Cor do texto no modo escuro
+                color: theme.palette.mode === 'dark' ? '#ffffff' : '#000000',
               }
             }}
           />
@@ -170,11 +183,11 @@ const SignUpPage: React.FC = () => {
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             InputLabelProps={{
-              sx: { color: theme.palette.mode === 'dark' ? '#ffffff' : '#000000' }, // Cor da label no modo escuro
+              sx: { color: theme.palette.mode === 'dark' ? '#ffffff' : '#000000' },
             }}
             InputProps={{
               sx: {
-                color: theme.palette.mode === 'dark' ? '#ffffff' : '#000000', // Cor do texto no modo escuro
+                color: theme.palette.mode === 'dark' ? '#ffffff' : '#000000',
               }
             }}
           />

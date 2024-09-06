@@ -3,10 +3,9 @@ import Cookies from 'js-cookie';
 import autenticaStore from '../store/autentica.store';
 
 const http = axios.create({
-    //baseURL: 'http://localhost:8000/api/',
+    baseURL: 'http://localhost:8000/api/',
     // baseURL: 'https://gerenciamento-backend-teste.vercel.app/api',
-     baseURL: 'http://ec2-3-128-91-44.us-east-2.compute.amazonaws.com:8000/api/',
-
+    //baseURL: 'http://ec2-3-128-91-44.us-east-2.compute.amazonaws.com:8000/api/',
     withCredentials: true,
 });
 

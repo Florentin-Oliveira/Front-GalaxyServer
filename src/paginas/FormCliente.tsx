@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { TextField, Container, Typography, Box, Button, Alert, Slide } from '@mui/material';
+import { TextField, Container, Typography, Box, Button, Alert, Slide, FormControlLabel, Checkbox } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import usePost from '../hook/usePost';
 import autenticaStore from '../store/autentica.store';
 import { ICliente } from '../Interface/ICliente';
+import { validarCPF } from '../Validacao/CPF';
+import { validarCNPJ } from '../Validacao/CNPJ';
 
 function FormCliente() {
   const theme = useTheme();
@@ -21,6 +23,10 @@ function FormCliente() {
   const { cadastrarDados, sucesso, erro, resposta } = usePost();
   const [isLoading, setIsLoading] = useState(false);
 
+  const [cpfError, setCpfError] = useState('');
+  const [cnpjError, setCnpjError] = useState('');
+  const [useCpf, setUseCpf] = useState(true); // Estado para rastrear se CPF ou CNPJ está sendo usado
+
   useEffect(() => {
     if (sucesso) {
       setSuccess(true);
@@ -37,17 +43,31 @@ function FormCliente() {
     }
   }, [sucesso, erro, resposta]);
 
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setClienteData({
       ...clienteData,
       [name]: value,
     });
+
+    if (name === 'cpf') setCpfError(''); // Limpa o erro ao digitar no campo
+    if (name === 'cnpj') setCnpjError(''); // Limpa o erro ao digitar no campo
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setCpfError('');
+    setCnpjError('');
+
+    // Validação para CPF ou CNPJ
+    if (useCpf && (!clienteData.cpf || !validarCPF(clienteData.cpf))) {
+      setCpfError('CPF inválido.');
+      return;
+    } else if (!useCpf && (!clienteData.cnpj || !validarCNPJ(clienteData.cnpj))) {
+      setCnpjError('CNPJ inválido.');
+      return;
+    }
+
     const authToken = autenticaStore.usuario.token;
 
     await cadastrarDados({
@@ -55,7 +75,6 @@ function FormCliente() {
       dados: clienteData,
       authToken,
     });
-
   };
 
   return (
@@ -112,30 +131,61 @@ function FormCliente() {
               sx: { color: theme.palette.text.primary }
             }}
           />
-          <TextField
-            label="CPF"
-            variant="outlined"
-            fullWidth
-            margin="normal"
-            name="cpf"
-            value={clienteData.cpf}
-            onChange={handleChange}
-            InputLabelProps={{
-              sx: { color: theme.palette.text.primary }
-            }}
+
+          {/* Checkbox para selecionar entre CPF e CNPJ */}
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={useCpf}
+                onChange={() => setUseCpf(true)}
+                name="useCpf"
+              />
+            }
+            label="Usar CPF"
           />
-          <TextField
-            label="CNPJ"
-            variant="outlined"
-            fullWidth
-            margin="normal"
-            name="cnpj"
-            value={clienteData.cnpj}
-            onChange={handleChange}
-            InputLabelProps={{
-              sx: { color: theme.palette.text.primary }
-            }}
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={!useCpf}
+                onChange={() => setUseCpf(false)}
+                name="useCnpj"
+              />
+            }
+            label="Usar CNPJ"
           />
+
+          {useCpf ? (
+            <TextField
+              label="CPF"
+              variant="outlined"
+              fullWidth
+              margin="normal"
+              name="cpf"
+              value={clienteData.cpf}
+              onChange={handleChange}
+              error={!!cpfError}
+              helperText={cpfError}
+              InputLabelProps={{
+                sx: { color: theme.palette.text.primary }
+              }}
+            />
+          ) : (
+            <TextField
+              label="CNPJ"
+              variant="outlined"
+              fullWidth
+              margin="normal"
+              name="cnpj"
+              value={clienteData.cnpj}
+              onChange={handleChange}
+              error={!!cnpjError}
+              helperText={cnpjError}
+              InputLabelProps={{
+                sx: { color: theme.palette.text.primary }
+              }}
+            />
+          )}
+
           <TextField
             label="Email"
             variant="outlined"

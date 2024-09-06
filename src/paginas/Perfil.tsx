@@ -9,6 +9,9 @@ export default function UserPerfil() {
   const navigate = useNavigate();
   const user: IUser = autenticaStore.usuario;
 
+  console.log('Inicializando componente UserPerfil');
+  console.log('Usuário inicial:', user);
+
   const [formData, setFormData] = useState<{
     id: number | undefined;
     username: string;
@@ -17,9 +20,11 @@ export default function UserPerfil() {
   }>({
     id: user.id,
     username: user.username,
-    email: user.email ?? '',  // Certifique-se de que `user.email` está vindo corretamente
+    email: user.email ?? '',
     password: '',
   });
+
+  console.log('Estado inicial do formData:', formData);
 
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [oldPassword, setOldPassword] = useState('');
@@ -30,26 +35,31 @@ export default function UserPerfil() {
   const [isChangingPassword, setIsChangingPassword] = useState(false);
 
   useEffect(() => {
-    setFormData({
-      id: user.id,
-      username: user.username,
-      email: user.email ?? '',  // Certifique-se que `user.email` está vindo corretamente
-      password: '',
-    });
-  }, [user]);
-
-  const handleEdit = () => {
-    setIsEditing(true);
-    setIsChangingPassword(false);
-  };
-
-  const handleCancel = () => {
+    console.log('useEffect disparado: user atualizado', user);
     setFormData({
       id: user.id,
       username: user.username,
       email: user.email ?? '',
       password: '',
     });
+    console.log('FormData atualizado no useEffect:', formData);
+  }, [user]);
+
+  const handleEdit = () => {
+    console.log('Entrou no modo de edição');
+    setIsEditing(true);
+    setIsChangingPassword(false);
+  };
+
+  const handleCancel = () => {
+    console.log('Edição cancelada, revertendo valores');
+    setFormData({
+      id: user.id,
+      username: user.username,
+      email: user.email ?? '',
+      password: '',
+    });
+    console.log('FormData após cancelar:', formData);
     setOldPassword('');
     setNewPassword('');
     setConfirmNewPassword('');
@@ -60,11 +70,15 @@ export default function UserPerfil() {
 
   const handleSave = async () => {
     if (isEditing) {
+      console.log('Salvando dados do usuário:', formData);
       try {
         const response = await http.put(`/users/${formData.id}/`, { username: formData.username, email: formData.email });
+        console.log('Resposta do servidor ao salvar:', response.data);
         autenticaStore.usuario = { ...user, username: response.data.username, email: response.data.email };
+        console.log('Usuário atualizado no autenticaStore:', autenticaStore.usuario);
         setIsEditing(false);
       } catch (error: any) {
+        console.error('Erro ao salvar os dados do usuário:', error);
         setPasswordError('Error saving user info. Please check the details and try again.');
       }
     } else if (isChangingPassword) {
@@ -73,12 +87,15 @@ export default function UserPerfil() {
   };
 
   const handleChangePasswordClick = () => {
+    console.log('Entrou no modo de alteração de senha');
     setIsChangingPassword(true);
     setIsEditing(false);
   };
 
   const handleChangePassword = async () => {
+    console.log('Alterando senha');
     if (newPassword !== confirmNewPassword) {
+      console.error('As novas senhas não coincidem');
       setPasswordError('The new passwords do not match.');
       return;
     }
@@ -90,24 +107,28 @@ export default function UserPerfil() {
 
     try {
       const response = await http.post(`/password-change/`, payload);
+      console.log('Senha alterada com sucesso:', response.data);
       setOldPassword('');
       setNewPassword('');
       setConfirmNewPassword('');
       setPasswordError(null);
       setIsChangingPassword(false);
     } catch (error: any) {
+      console.error('Erro ao alterar a senha:', error);
       setPasswordError('Error changing password. Please check if the current password is correct.');
     }
   };
 
   const handleDelete = async () => {
+    console.log('Deletando usuário:', formData.id);
     try {
       await http.delete(`/users/${formData.id}/`);
+      console.log('Usuário deletado com sucesso');
       autenticaStore.logout();
       setOpenDeleteDialog(false);
       navigate('/');
     } catch (error: any) {
-      console.error('Error deleting user:', error);
+      console.error('Erro ao deletar o usuário:', error);
     }
   };
 
@@ -120,6 +141,7 @@ export default function UserPerfil() {
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log('Alteração no campo:', e.target.name, e.target.value);
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
@@ -137,7 +159,7 @@ export default function UserPerfil() {
         maxWidth: '600px',
         width: '100%',
         margin: '20px auto',
-        transform: { xs: 'none', md: 'translateX(-30%)' }, // Responsivo
+        transform: { xs: 'none', md: 'translateX(-30%)' },
       }}
     >
       <Stack direction="row" spacing={2} alignItems="center">
@@ -151,28 +173,7 @@ export default function UserPerfil() {
       </Stack>
 
       <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} sx={{ marginTop: 4 }}>
-        <Box sx={{ width: '100%' }}>
-          <Typography variant="h6">Meus dados</Typography>
-          <TextField
-            name="username"
-            variant="outlined"
-            value={formData.username}
-            onChange={handleChange}
-            sx={{ marginBottom: 2 }}
-            fullWidth
-            disabled={!isEditing}
-          />
-          <TextField
-            label="E-mail"
-            name="email"
-            variant="outlined"
-            value={formData.email}
-            onChange={handleChange}
-            sx={{ marginBottom: 2 }}
-            fullWidth
-            disabled={!isEditing}
-          />
-        </Box>
+
         <Box sx={{ width: '100%' }}>
           <Typography variant="h6">Alterar senha</Typography>
           <TextField

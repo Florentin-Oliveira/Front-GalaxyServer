@@ -12,6 +12,8 @@ import MiLogoPng from '../../assets/image/MiLogoPng.png';
 
 const pages = [
     { name: 'Início', route: '/' },
+    { name: 'Criar OS', route: '/FormOS'},
+    { name: 'Novo Cliente', route: '/FormCliente'},
     { name: 'Meus Clientes', route: '/Clientes' },
     { name: 'Favoritos', route: '/Favoritos' },
     { name: 'Compartilhados', route: '/CompatilhadosComigo' }
